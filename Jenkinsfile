@@ -1,44 +1,46 @@
 pipeline {
   agent any
   environment {
+    DOCKERHUB = credentials("도커허브")
     GITHUB_REPO="https://github.com/Jennorresothie/hello_world_server"
     DOCKER_REPO="conna/hello_world_server"
     VERSION=1.0
   }
     stages {
-      stage("CheckOut") {
-        steps {
-          git url: "$GITHUB_REPO",
-              branch: 'main'
-        }
+    stage("CheckOut") {
+      steps {
+        git url: "$GITHUB_REPO",
+            branch: "main"
       }
-      stage("Code Build") {
-        steps {
-          sh "echo 'Code Build'"
-        }
-      }
-      stage("Unit Test") {
-        steps {
-          sh "echo 'Unit Test'"
-        }
-      }
-      stage("Docker Build") {
-        steps {
-          sh "docker build -t $DOCKER_REPO:$VERSION ."
-        }
-      }
-      stage("Docker Push") {
-        steps {
-          sh "echo 'Docker Push'"
-        }
-      }
-      stage("Deploy") {
-        steps {
-          sh "echo 'Deploy'"
-        }
-      }
-
     }
+    stage("Code Build") {
+      steps {
+        sh "echo 'Code Build'"
+      }
+    }
+    stage("Unit Test") {
+      steps {
+        sh "echo 'Unit Test'"
+      }
+    }
+    stage("Docker Build") {
+      steps {
+        sh "docker build -t $DOCKER_REPO:$VERSION ."
+      }
+    }
+    stage("Docker Push") {
+      steps {
+        sh "docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW"
+        sh "docker push $DOCKER_REPO:$VERSION"
+        sh "docker logout"
+      }
+    }
+    stage("Deploy") {
+      steps {
+        sh "echo 'Deploy'"
+      }
+    }
+  }
   post {
         success {
             slackSend (
