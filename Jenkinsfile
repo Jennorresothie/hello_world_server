@@ -1,9 +1,14 @@
 pipeline {
   agent any
+  environment {
+    GITHUB_REPO="https://github.com/Jennorresothie/hello_world_server"
+    DOCKER_REPO="conna/hello_world_server"
+    VERSION=1.0
+  }
     stages {
       stage("CheckOut") {
         steps {
-          git url: 'https://github.com/lyhan12/hello_world_server.git',
+          git url: "$GITHUB_REPO",
               branch: 'main'
         }
       }
@@ -19,7 +24,7 @@ pipeline {
       }
       stage("Docker Build") {
         steps {
-          sh "echo 'Docker Build'"
+          sh "docker build -t $DOCKER_REPO:$VERSION ."
         }
       }
       stage("Docker Push") {
